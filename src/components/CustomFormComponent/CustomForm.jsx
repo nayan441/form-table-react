@@ -1,57 +1,95 @@
-import React, {useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./customForm.css";
 import { validateValues } from '../../validations/validations';
+import axios from "axios";
 
 function CustomForm() {
   const { id } = useParams();
   const [isUpdate, setIsUpdate] = useState(false)
-  const navigate=useNavigate()
-  const [details,setUserDetails]=useState({
-    name:'',
-    email:'',
-    age:'',
-    role:'',
+  const navigate = useNavigate()
+  const [details, setUserDetails] = useState({
+    name: '',
+    email: '',
+    age: '',
+    role: '',
   })
   const [errors, setErrors] = useState({});
+  const baseURL = "http://localhost:4000/users";
 
-  const handleChange=(e)=>{
-    const {name,value}=e.target
-    setUserDetails((pre)=>({...pre,[name]:value}))
+  const handleChange = (e) => {
+    const { name, value } = e.target
+    setUserDetails((pre) => ({ ...pre, [name]: value }))
   }
 
-  const handleSubmit=(e)=>{
+  //   const handleSubmit=(e)=>{
+  //     e.preventDefault()
+
+  //     setErrors(validateValues(details))
+
+  //     var oldItems = JSON.parse(localStorage.getItem('userDetails')) || [];
+  //     if(Object.keys(validateValues(details)).length === 0){
+  //     if(!isUpdate){
+  //       oldItems.push(details);
+  //       oldItems.forEach((data, index)=>{data['id']=index})
+  //     }
+  //     else{
+  //       oldItems = oldItems.map((obj)=> (obj.id == id ? details : obj))
+  //     }
+
+  //     localStorage.setItem('userDetails', JSON.stringify(oldItems));
+  //     navigate('/list')
+  //     setIsUpdate(false)
+  //   }
+  // }
+
+  const handleSubmit = (e) => {
     e.preventDefault()
-
     setErrors(validateValues(details))
+    if (Object.keys(validateValues(details)).length === 0) {
+      if (!isUpdate) {
+        axios
+          .post(baseURL, details)
+          .then((response) => {
+            console.log(response.data);
+          });
+      }
+      else {
+        axios
+        .put(`${baseURL}/${id}`, details)
+        .then((response) => {
+          console.log(response.data)
+        });
 
-    var oldItems = JSON.parse(localStorage.getItem('userDetails')) || [];
-    if(Object.keys(validateValues(details)).length === 0){
-    if(!isUpdate){
-      oldItems.push(details);
-      oldItems.forEach((data, index)=>{data['id']=index})
-    }
-    else{
-      oldItems = oldItems.map((obj)=> (obj.id == id ? details : obj))
+      }
+      setUserDetails({
+        name: '',
+        email: '',
+        age: '',
+        role: '',
+      })
     }
 
-    localStorage.setItem('userDetails', JSON.stringify(oldItems));
-    navigate('/list')
-    setIsUpdate(false)
+
   }
-}
 
-  useEffect(()=>{
-    const isLocalStorageId =JSON.parse(localStorage.getItem('userDetails'))?.find((obj) => obj.id == id)
-    if(id && isLocalStorageId){
-      setUserDetails(isLocalStorageId)
-      setIsUpdate(true)
+
+
+
+  useEffect(() => {
+    if (id) {
+        axios
+        .get(`${baseURL}/${id}`)
+        .then((response) => {
+          setUserDetails(response.data);
+          setIsUpdate(true)
+        });
     }
-  },[])
+  }, [])
 
 
-  return (  
+  return (
     <div className='container'>
       <div> <h1>Home View</h1> </div>
       <form className="container m-4 p-2" onSubmit={handleSubmit}>
@@ -75,7 +113,7 @@ function CustomForm() {
               value={details.age}
               onChange={handleChange} />
           </label>
-              {errors.age ? <p className="error"> {errors.age} </p> : null}
+          {errors.age ? <p className="error"> {errors.age} </p> : null}
         </div>
         <div className="mb-1">
           <label >Email:
@@ -86,7 +124,7 @@ function CustomForm() {
               value={details.email}
               onChange={handleChange} />
           </label >
-              {errors.email ? <p className="error"> {errors.email} </p> : null}
+          {errors.email ? <p className="error"> {errors.email} </p> : null}
         </div>
 
         <div className="mb-1">
@@ -98,9 +136,9 @@ function CustomForm() {
               value={details.role}
               onChange={handleChange} />
           </label>
-              {errors.role ? <p className="error"> {errors.role} </p> : null}
+          {errors.role ? <p className="error"> {errors.role} </p> : null}
         </div>
-        <button className="btn btn-primary mt-3"   onClick={handleSubmit}>{isUpdate ? "Update" : "Submit"}</button>
+        <button className="btn btn-primary mt-3" onClick={handleSubmit}>{isUpdate ? "Update" : "Submit"}</button>
         <div className="mt-2">
           <Link to="/list">Go to table</Link>
         </div>

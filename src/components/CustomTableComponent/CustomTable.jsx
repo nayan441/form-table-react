@@ -4,48 +4,63 @@ import { Link, useNavigate } from 'react-router-dom';
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import { useParams } from 'react-router-dom';
+import axios from "axios";
 
 
 
 function CustomTable() {
   const navigate = useNavigate();
+  const baseURL = "http://localhost:4000/users";
+
 
   const [userInfo, setUserInfo] = useState(null)
   const [indexId, setIndexId] = useState(null);
   const [show, setShow] = useState(false);
   const handleClose = () => setShow(false);
 
+  // useEffect(() => {
+  //   const userInfo = JSON.parse(localStorage.getItem("userDetails")) || []
+  //   if (userInfo) {
+  //     setUserInfo(userInfo)
+  //   }
+  // }, [])
+
+  const fetchData = () => {
+    axios.get(baseURL).then((response) => {
+      setUserInfo(response.data);
+    });
+  }
+
   useEffect(() => {
-    const userInfo = JSON.parse(localStorage.getItem("userDetails")) || []
-    if (userInfo) {
-      setUserInfo(userInfo)
-    }
-  }, [])
+    fetchData()
+  }, []);
 
   const showDeleteDilogBox = (index) => {
     setIndexId(index)
     setShow(true);
   }
 
+  // const handleDelete = (indexId) => {
+  //   const newUserList = userInfo?.filter((obj) => obj.id !== indexId);
+  //   setUserInfo(newUserList)
+  //   setShow(false);
+  //   localStorage.setItem('userDetails', JSON.stringify(newUserList));
+  // }
+
   const handleDelete = (indexId) => {
-    const newUserList = userInfo?.filter((obj) => obj.id !== indexId);
-    setUserInfo(newUserList)
+    axios
+    .delete(`${baseURL}/${indexId}`)
+    .then(() => {
+      alert("Post deleted!");
+      fetchData()
+    });
     setShow(false);
-    localStorage.setItem('userDetails', JSON.stringify(newUserList));
   }
-  const handleUpdate1 = (index) => {
-    handleUpdate(index);
+
+
+  const handleUpdate = (index) => {
     navigate(`/${index}`)
   }
-
-  const handleUpdate = (indexProp) => {
-    // setIsUpdate(true)
-    // setIndexId(indexProp)
-    const targetUserList = userInfo?.find((obj, index) => index == indexProp);
-    // setUserData(targetUserList)
-  }
-
-
 
   return (
     <div className='container'>
@@ -68,14 +83,14 @@ function CustomTable() {
           {userInfo?.map((userObject, index) => (
             <tr key={index}>
               <td>{index + 1}</td>
-              <td>{userObject.id   +1}</td>
+              <td>{userObject.id}</td>
               <td>{userObject.name}</td>
               <td>{userObject.age}</td>
               <td>{userObject.email}</td>
               <td>{userObject.role}</td>
               <td>
                 <button onClick={() => showDeleteDilogBox(userObject.id)} >Delete</button>
-                <button onClick={() => handleUpdate1(userObject.id)} >Update</button>
+                <button onClick={() => handleUpdate(userObject.id)} >Update</button>
               </td>
             </tr>
           ))}
@@ -83,7 +98,7 @@ function CustomTable() {
         </tbody>
       </Table>
       <Modal show={show} onHide={handleClose}>
-        <Modal.Title className='p-4'>Want to delete field {indexId + 1}</Modal.Title>
+        <Modal.Title className='p-4'>Want to delete field {indexId}</Modal.Title>
         <Modal.Footer>
 
 
