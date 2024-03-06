@@ -1,71 +1,63 @@
-// const validateValues = (inputValues) => {
-//     let errors = {};
-//     //name
-//     (function (){ 
-//         const regex = /^[^0-9]*$/;
-//         if (inputValues.name.length < 10){
-//             errors.name = `Name is too short`;
-//         }
-//         if (!regex.test(inputValues.name)){
-//             errors.name = `Name has digit`;
-//         }
-//         })();
-        
-//     //email
-//     (function (){ 
-//         if (!inputValues.email.includes('gmail')){
-//             errors.email = `gmail domain is only allowed  `;
-//         }   
-//         })();
-
-//     //age
-//     (function (){ 
-//         if (inputValues.age < 18){
-//             errors.age = `Age should be greater than 18  `;
-//         }   
-//         })();
-
-//     // role
-//     (function (){ 
-//         const roleList = ["Software","Developer", "Backend", "FrontEnd"]
-//         if (!inputValues.role.includes(roleList) ){
-//             errors.role = `Role Sholuld have (${roleList} ) keywords `;
-//         }   
-//         })();
-
-//     return errors;
-
-// }
-
-
 function validateValues(inputValues) {
     let errors = {};
-    const regex = /^[^0-9]*$/;
-    const roleList = ["Software","Developer", "Backend", "FrontEnd"]
-    {
-        if (inputValues.name.length < 10){
-            errors.name = `Name is too short`;
+    // const regex = /^[^0-9]*$/;
+    const regex =/^[^\d!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]*$/;
+    const roleList = ["software","developer", "backend", "frontend"]
+
+    { 
+        console.log("trim");
+        console.log(inputValues.email.length);
+        console.log(inputValues.email.trim().length);
+        if (inputValues.name == "" || inputValues.name.length == null || inputValues.name.length == undefined){
+            errors.name = `Required`;
         }
-        if (!regex.test(inputValues.name)){
-            errors.name = `Name has digit`;
+        else if (inputValues.name.trim().length == 0){
+            errors.name = `Name containing all spaces are not allowed`;
+        }
+        else if (!regex.test(inputValues.name)){
+            errors.name = `No digit character allowed`;
         }
     }
+    // console.log(inputValues.email.split('@').map(x=>x.length==0));
+    // console.log(inputValues.email.split('@'));
+    {    
+        console.log(inputValues.email.length);   
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if ((inputValues.email == "" || inputValues.email == null || inputValues.email == undefined))
+        {
+            errors.email = `Required`;
+        }
+        else if (inputValues.email.trim().length == 0)
+        {
+            errors.email = `Email containing spaces are not allowed`;
+        }
+        else if (!emailRegex.test(inputValues.email)) 
+        {
+            errors.email = `invalid email`;
+        }
 
-    if (!inputValues.email.includes('gmail')){
-        errors.email = `gmail domain is only allowed  `;
-    }   
-
-    if (inputValues.age < 18){
-            errors.age = `Age should be greater than 18  `;
-        }  
-    console.log("               inputValues.role");
-    console.log(inputValues.role.includes(roleList));
-    if (!roleList.some(word => inputValues.role.includes(word))){
-        errors.role = `Role Sholuld have (${roleList} ) keywords `;
     } 
-  
+
+    {
+        if ((inputValues.age == "" || inputValues.age == null || inputValues.age == undefined)){
+                errors.age = `Required`;
+            } 
+        else if (isNaN(inputValues.age)){
+                errors.age = `Age should be integer `;
+            } 
+        else if (inputValues.age < 18){
+                errors.age = `Age should be greater than 18  `;
+            } 
+    }
+    {
+        if ((inputValues.role == "" || inputValues.role == null || inputValues.role == undefined)){
+            errors.role = `Required`;
+        } 
+        // else if (!roleList.some(word => inputValues.role.toLowerCase().includes(word))){
+        //     errors.role = `Role Sholuld have (${roleList} ) keywords `;
+        // } 
+    }
+    
     return errors;
 };
-  
-
 export { validateValues };

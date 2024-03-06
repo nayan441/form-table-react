@@ -13,6 +13,8 @@ function CustomTable() {
   const [userInfo, setUserInfo] = useState(null)
   const [indexId, setIndexId] = useState(null);
   const [show, setShow] = useState(false);
+  const [noMatch, setNoMatch] = useState({})
+
   const handleClose = () => setShow(false);
 
   useEffect(() => {
@@ -44,18 +46,60 @@ function CustomTable() {
     const targetUserList = userInfo?.find((obj, index) => index == indexProp);
     // setUserData(targetUserList)
   }
+ const requestSearch = (e) =>{
+  const userInfo = JSON.parse(localStorage.getItem("userDetails")) || []
+  if (userInfo) {
+      setUserInfo(userInfo)
+    }
 
+  let tempSearch = userInfo.filter(obj=> {
+    console.log("tempSearch");
+    console.log( obj.name.toLowerCase());
+    console.log(e.toLowerCase());
+    return obj.name.toLowerCase().trim().includes(e.trim().toLowerCase())
+  })
+  console.log(tempSearch);
+  if (tempSearch.length < 1) {
+    setNoMatch({error:"No match found"})
+    setUserInfo(userInfo)
+  }
+  else {
+    setNoMatch({})
+    setUserInfo(tempSearch)
+  }
+ }
+ const handelPagination = (e,index01)=>{
+  console.log("index01");
+  console.log(index01);
+  let x = JSON.parse(localStorage.getItem("userDetails")).filter((obj,index02)=>{
+    console.log("index02");
+    console.log(index02);
+    if ( (index01*4) <= index02 && index02 < ((index01+1)*4)){
+      console.log("obj")
+      console.log(obj)
+      return obj
+    }
+  })
+  console.log("    x");
+  console.log(x);
+  setUserInfo(x)
 
-
+  return 
+ }
+ 
   return (
     <div className='container'>
-      <div className='mt-3 mb-3'>
+      <div className='d-inline p-2'>
         <h1>Table Content View</h1>
+        <textarea 
+        type="text" 
+        placeholder="Search by name"
+        onChange={(e) => requestSearch(e.target.value) } />
       </div>
+      <p className='error'>{ noMatch.error? noMatch.error:""}</p>
       <Table striped bordered hover size="sm">
         <thead>
           <tr>
-            <th>Index</th>
             <th>#Id</th>
             <th>Name</th>
             <th>Age</th>
@@ -67,7 +111,6 @@ function CustomTable() {
         <tbody>
           {userInfo?.map((userObject, index) => (
             <tr key={index}>
-              <td>{index + 1}</td>
               <td>{userObject.id   +1}</td>
               <td>{userObject.name}</td>
               <td>{userObject.age}</td>
@@ -82,6 +125,29 @@ function CustomTable() {
 
         </tbody>
       </Table>
+      <nav aria-label="...">
+  <ul className="pagination ">
+    {/* <li className="page-item disabled">
+      <span className="page-link">Previous</span>
+    </li> */}
+    {
+  // Using conditional operator to avoid error when userInfo is undefined or null
+  userInfo &&
+    Array.from({ length: Math.ceil(JSON.parse(localStorage.getItem("userDetails")).length / 4) }, (_, i) => (
+      <li className="page-item" key={i}>
+        <a className="page-link" onClick={(e)=>handelPagination(e,i)}>
+          {i + 1}
+        </a>
+      </li>
+    ))
+}
+
+    {/* <li className="page-item">
+      <a className="page-link" href="#">Next</a>
+    </li> */}
+  </ul>
+</nav>
+
       <Modal show={show} onHide={handleClose}>
         <Modal.Title className='p-4'>Want to delete field {indexId + 1}</Modal.Title>
         <Modal.Footer>

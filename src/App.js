@@ -5,7 +5,6 @@ import About from './components/About/About';
 import { useState } from "react";
 import CustomTable from './components/CustomTableComponent/CustomTable';
 import NoMatch from './components/About/NoMatch';
-import { Toaster, toast } from 'sonner';
 
 
 
@@ -38,7 +37,6 @@ function App() {
   return (
 
     <div className="App">
-      <Toaster />
       <Router>
         <Routes>
             <Route path='/:id?' element={<CustomForm />}/>
